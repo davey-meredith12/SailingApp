@@ -22,42 +22,6 @@ struct AddInventoryView: View {
             item.boat = boatStore.currentBoat
             modelContext.insert(item)
         }
-        
-        
-        
-        
-        
-        
-        
-        
-//        NavigationStack{
-//            InventoryItemForm(item: item)
-//        }
-//        .safeAreaInset(edge: .bottom) {
-//            HStack{
-//                Spacer()
-//                
-//                Button {
-//                    addItem()
-//                } label:{
-//                    Label("Add", systemImage: "plus")
-//                }
-//                .buttonStyle(.borderedProminent)
-//                .controlSize(.large)
-//                .padding(.horizontal)
-//            }
-//            
-//        }
-//        .navigationTitle("Add Item")
-//        .toolbar{
-//            ToolbarItem(placement: .topBarTrailing){
-//                Button(){
-//                    dismiss()
-//                }label:{
-//                    Image(systemName: "xmark")
-//                }
-//            }
-//        }
     }
 
 }

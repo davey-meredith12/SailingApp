@@ -22,41 +22,6 @@ struct AddBoatView: View {
             modelContext.insert(boat)
             boatStore.currentBoat = boat
         }
-        
-        
-        
-        
-        
-        
-        
-//        NavigationStack{
-//            BoatForm(boat: boat)
-//        }
-//        .safeAreaInset(edge: .bottom) {
-//            HStack{
-//                Spacer()
-//                
-//                Button {
-//                    addItem()
-//                } label:{
-//                    Label("Add", systemImage: "plus")
-//                }
-//                .buttonStyle(.borderedProminent)
-//                .controlSize(.large)
-//                .padding(.horizontal)
-//            }
-//            
-//        }
-//        .navigationTitle("Add Boat")
-//        .toolbar{
-//            ToolbarItem(placement: .topBarTrailing){
-//                Button(){
-//                    dismiss()
-//                }label:{
-//                    Image(systemName: "xmark")
-//                }
-//            }
-//        }
     }
 }
 

@@ -12,7 +12,8 @@ import SwiftData
 struct SailingAppApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            InventoryItem.self,
+            Boat.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -22,11 +23,19 @@ struct SailingAppApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
+    @State private var boatStore = BoatStore()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(boatStore)
         }
         .modelContainer(sharedModelContainer)
     }
+}
+
+@Observable
+class BoatStore {
+    var currentBoat: Boat?
 }

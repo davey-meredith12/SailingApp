@@ -50,22 +50,7 @@ struct InventoryView: View {
                                             
                                             Spacer()
                                             
-                                            if item.isExpired {
-                                                WarningTag{
-                                                    Text("Expired")
-                                                }
-                                            }
-                                            
-                                            if item.isCloseToExpiring(numWarningDays: expirationWarningDays), let days = item.daysUntilExpiration {
-                                                WarningTag(color: .orange){
-                                                    if days == 0 {
-                                                        Text("Expires today")
-                                                    } else{
-                                                        Text("Expires in \(days) days")
-                                                    }
-                                                    
-                                                }
-                                            }
+                                            RowLabelExpirationTags(item: item, expirationWarningDays: expirationWarningDays)
                                         }
                                     }
                                     
@@ -78,11 +63,6 @@ struct InventoryView: View {
                         .onDelete(perform: deleteItems)
                     }
                 }
-                
-                
-                
-                
-                
             }
         }
         .navigationTitle("Inventory")
@@ -112,8 +92,10 @@ struct InventoryView: View {
     }
 }
 
+/// Displays item information for the row
+/// - Parameters:
+///     - item: The InventoryItem information to display.
 struct InventoryItemRowLabel: View{
-    
     @Bindable var item: InventoryItem
     
     var body: some View{
@@ -134,6 +116,35 @@ struct InventoryItemRowLabel: View{
     }
 }
 
+/// Displays expiring and expired tags for the row label
+/// - Parameters:
+///     - item: The InventoryItem.
+///     - expirationWarningDays: The number of days away an expiration is for a warning to start showing.
+struct RowLabelExpirationTags: View{
+    
+    @Bindable var item: InventoryItem
+    var expirationWarningDays: Int
+    
+    var body: some View {
+        if item.isExpired {
+            WarningTag{
+                Text("Expired")
+            }
+        }
+        
+        if item.isCloseToExpiring(numWarningDays: expirationWarningDays), let days = item.daysUntilExpiration {
+            WarningTag(color: .orange){
+                if days == 0 {
+                    Text("Expires today")
+                } else{
+                    Text("Expires in \(days) days")
+                }
+                
+            }
+        }
+    }
+}
+
 struct InventoryDetailView: View {
     @Bindable var item: InventoryItem
 
@@ -144,6 +155,9 @@ struct InventoryDetailView: View {
     }
 }
 
+/// A stepper for controlling the inventory amount of an item
+/// - Parameters:
+///     - item: The InventoryItem that the stepper should edit.
 struct InventoryStepperControl: View {
     @Bindable var item: InventoryItem
     
@@ -190,6 +204,10 @@ struct InventoryStepperControl: View {
     }
 }
 
+/// Creates a warning tag
+/// - Parameters:
+///     - color: The color the tag should be
+///     - content: The content for the tag, designed around using Text()
 struct WarningTag<Content: View>: View {
     let color: Color
     let content: Content

@@ -14,9 +14,20 @@ struct InventoryView: View {
     @AppStorage("expirationWarningDays") private var expirationWarningDays: Int = 7
 
     
+    @State private var searchText = ""
+    
     private var items: [InventoryItem] {
-        (boatStore.currentBoat?.inventory.sorted { $0.name < $1.name })!
+        let allItems = boatStore.currentBoat?.inventory.sorted { $0.name < $1.name } ?? []
+        
+        if searchText.isEmpty{
+            return allItems
+        }
+        
+        return allItems.filter { item in
+            item.name.localizedCaseInsensitiveContains(searchText)
+        }
     }
+    
     private var groupedItems: [(type: InventoryType, items:[InventoryItem])] {
         let grouped = Dictionary(grouping: items) {item in
             item.type
@@ -60,11 +71,21 @@ struct InventoryView: View {
                                 }
                                 .padding(.vertical, 4)
                         }
-                        .onDelete(perform: deleteItems)
+                        .onDelete{offsets in
+                            let itemsToDelete = offsets.map { group.items[$0] }
+                            
+                            withAnimation {
+                                for item in itemsToDelete {
+                                    modelContext.delete(item)
+                                }
+                            }
+                        }
+                        
                     }
                 }
             }
         }
+        .searchable(text: $searchText, prompt: "Search inventory")
         .navigationTitle("Inventory")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -81,14 +102,6 @@ struct InventoryView: View {
             }
         }
         
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
     }
 }
 

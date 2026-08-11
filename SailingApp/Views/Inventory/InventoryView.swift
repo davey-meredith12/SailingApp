@@ -17,14 +17,20 @@ struct InventoryView: View {
     @State private var searchText = ""
     
     private var items: [InventoryItem] {
-        let allItems = boatStore.currentBoat?.inventory.sorted { $0.name < $1.name } ?? []
+        guard let boat = boatStore.currentBoat else {return []}
+        
+        let allItems = boat.inventory.sorted {
+            $0.name < $1.name
+        }
         
         if searchText.isEmpty{
             return allItems
         }
         
         return allItems.filter { item in
-            item.name.localizedCaseInsensitiveContains(searchText)
+            item.name.localizedCaseInsensitiveContains(searchText) ||
+            item.location.localizedCaseInsensitiveContains(searchText) ||
+            item.type.rawValue.localizedCaseInsensitiveContains(searchText)
         }
     }
     
@@ -42,11 +48,17 @@ struct InventoryView: View {
     
     var body: some View {
         List {
-            if items.isEmpty {
+            if items.isEmpty && searchText == "" {
                 ContentUnavailableView(
                     "No Inventory Items",
                     systemImage: "shippingbox",
                     description: Text("Tap + to add your first inventory item.")
+                )
+            } else if items.isEmpty && searchText != ""{
+                ContentUnavailableView(
+                    "No Results",
+                    systemImage: "shippingbox",
+                    description: Text("No results match \"\(searchText)\"")
                 )
             } else {
                 ForEach(groupedItems, id: \.type) { group in

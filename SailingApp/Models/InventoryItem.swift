@@ -27,7 +27,7 @@ final class InventoryItem {
     var type: InventoryType
     var amount: Int
     var minimumAmount: Int
-    var location: String
+    var location: StorageLocation?
     var expiration: Date?
     var notes: String
     var boat: Boat?
@@ -37,7 +37,7 @@ final class InventoryItem {
         type: InventoryType,
         amount: Int = 1,
         minimumAmount: Int = 0,
-        location: String = "",
+        location: StorageLocation? = nil,
         expiration: Date? = nil,
         notes: String = "",
         boat: Boat?

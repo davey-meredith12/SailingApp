@@ -25,6 +25,9 @@ final class Boat {
     @Relationship(deleteRule: .cascade, inverse: \InventoryItem.boat)
         var inventory: [InventoryItem] = []
     
+    @Relationship(deleteRule: .cascade, inverse: \StorageLocation.boat)
+        var storageLocations: [StorageLocation] = []
+    
     init(name: String = "",
          make: String = "",
          model: String = "",

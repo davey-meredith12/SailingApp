@@ -19,6 +19,7 @@ enum PageDestination{
     case inventory
     case settings
     case boatInfo
+    case storageLocations
 }
 
 struct PageView: View {
@@ -31,12 +32,15 @@ struct PageView: View {
     let pages: [Page] = [
         Page(name: "Boat Information",
              imageName: "sailboat",
-             destination: PageDestination.boatInfo
-            ),
+             destination: PageDestination.boatInfo),
         
         Page(name: "Inventory",
              imageName: "list.bullet.clipboard",
              destination: PageDestination.inventory),
+        
+        Page(name: "Storage Locations",
+             imageName: "archivebox",
+             destination: PageDestination.storageLocations),
         
         Page(name: "Settings",
              imageName: "gear",
@@ -67,6 +71,9 @@ struct PageView: View {
         switch page.destination {
         case .inventory:
             InventoryView()
+        
+        case .storageLocations:
+            StorageLocationsView()
 
         case .settings:
             SettingsView()

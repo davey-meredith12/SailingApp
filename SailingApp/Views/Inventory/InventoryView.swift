@@ -29,7 +29,7 @@ struct InventoryView: View {
         
         return allItems.filter { item in
             item.name.localizedCaseInsensitiveContains(searchText) ||
-            item.location.localizedCaseInsensitiveContains(searchText) ||
+            (item.location?.name ?? "").localizedCaseInsensitiveContains(searchText) ||
             item.type.rawValue.localizedCaseInsensitiveContains(searchText)
         }
     }
@@ -132,8 +132,8 @@ struct InventoryItemRowLabel: View{
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
-            if !item.location.isEmpty {
-                Text(item.location)
+            if item.location != nil {
+                Text(item.location!.name)
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }

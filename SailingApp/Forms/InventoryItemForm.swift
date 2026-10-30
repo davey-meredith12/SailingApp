@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct InventoryItemForm: View{
+    @Environment(BoatStore.self) private var boatStore
     @Bindable var item: InventoryItem
     
     var body: some View{
@@ -32,7 +33,13 @@ struct InventoryItemForm: View{
             }
             
             Section("Location"){
-                TextField("Location", text: $item.location)
+                Picker("Location", selection: $item.location) {
+                    Text("None").tag(nil as StorageLocation?)
+
+                    ForEach(boatStore.currentBoat?.storageLocations ?? []) { location in
+                        Text(location.name).tag(location as StorageLocation?)
+                    }
+                }
             }
             
             Section("Expiration") {

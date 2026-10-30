@@ -15,6 +15,6 @@ struct ContentView: View {
     let boatStore = BoatStore()
     
     ContentView()
-        .modelContainer(for: [InventoryItem.self, Boat.self], inMemory: true)
+        .modelContainer(for: [InventoryItem.self, Boat.self, StorageLocation.self], inMemory: true)
         .environment(boatStore)
 }

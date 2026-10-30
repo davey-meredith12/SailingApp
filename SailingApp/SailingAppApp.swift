@@ -13,7 +13,8 @@ struct SailingAppApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             InventoryItem.self,
-            Boat.self
+            Boat.self,
+            StorageLocation.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

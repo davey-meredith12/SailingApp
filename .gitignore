@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Xcode per-user state (breakpoints, open tabs, scheme ordering)
+xcuserdata/
+*.xcuserstate
+
+# Build output
+build/
+DerivedData/
+
+# Archives and exported builds
+*.xcarchive
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Editors
+.vscode/
+.idea/

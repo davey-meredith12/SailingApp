@@ -9,7 +9,10 @@ Built with **SwiftUI** and **SwiftData**.
 | Boat Home | Inventory | Inventory Types |
 |:---:|:---:|:---:|
 | <img src="docs/screenshots/boat-home.png" width="240" alt="Boat home screen with Boat Information, Inventory, Storage Locations, Inventory Types and Settings"> | <img src="docs/screenshots/inventory.png" width="240" alt="Inventory list grouped by type, showing Low and Expires in 2 days tags"> | <img src="docs/screenshots/inventory-types.png" width="240" alt="List of inventory types"> |
-| Each boat has its own home screen. | Items are grouped by type, with quantity controls and low-stock and expiration tags. | Add, rename and delete categories. The **Storage Locations** page looks the same and works the same way. |
+
+- **Boat Home:** each boat has its own home screen.
+- **Inventory:** items are grouped by type, with quantity controls and low-stock and expiration tags.
+- **Inventory Types:** add, rename and delete categories. The **Storage Locations** page looks the same and works the same way.
 
 ## Features
 

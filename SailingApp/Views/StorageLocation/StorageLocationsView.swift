@@ -11,30 +11,10 @@ import SwiftData
 struct StorageLocationsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(BoatStore.self) private var boatStore
-
-//    @State private var searchText = ""
     
     private var locations: [StorageLocation] {
         boatStore.currentBoat!.storageLocations
     }
-    
-//    private var items: [InventoryItem] {
-//        guard let boat = boatStore.currentBoat else {return []}
-//        
-//        let allItems = boat.inventory.sorted {
-//            $0.name < $1.name
-//        }
-//        
-//        if searchText.isEmpty{
-//            return allItems
-//        }
-//        
-//        return allItems.filter { item in
-//            item.name.localizedCaseInsensitiveContains(searchText) ||
-//            (item.location?.name ?? "").localizedCaseInsensitiveContains(searchText) ||
-//            item.type.rawValue.localizedCaseInsensitiveContains(searchText)
-//        }
-//    }
 
     @State private var showingAddItem = false
     

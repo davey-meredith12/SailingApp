@@ -59,7 +59,7 @@ struct InventoryTypeView: View {
             }
             .sheet(isPresented: $showingAddItem) {
                 NavigationStack {
-                    AddStorageLocationView()
+                    AddInventoryTypeView()
                 }
             }
         }

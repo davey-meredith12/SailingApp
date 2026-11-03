@@ -18,8 +18,10 @@ struct InventoryItemForm: View{
                 TextField("Name", text: $item.name)
                 
                 Picker("Type", selection: $item.type){
-                    ForEach(InventoryType.allCases, id: \.self){type in
-                        Text(type.rawValue).tag(type)
+                    Text("Uncategorized").tag(nil as InventoryType?)
+                    
+                    ForEach(boatStore.currentBoat?.inventoryTypes ?? []) {inventoryType in
+                        Text(inventoryType.name).tag(inventoryType as InventoryType)
                     }
                 }
                 

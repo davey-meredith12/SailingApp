@@ -14,7 +14,8 @@ struct SailingAppApp: App {
         let schema = Schema([
             InventoryItem.self,
             Boat.self,
-            StorageLocation.self
+            StorageLocation.self,
+            InventoryType.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

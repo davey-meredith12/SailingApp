@@ -15,10 +15,10 @@ struct AddBoatView: View {
     @State var boat: Boat = Boat()
     
     var body: some View {
-        
         AddItemSheet(title: "Add Boat"){
             BoatForm(boat: boat)
         } onAdd:{
+            boat.addDefaultInventoryTypes()
             modelContext.insert(boat)
             boatStore.currentBoat = boat
         }

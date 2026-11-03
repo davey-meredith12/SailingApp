@@ -12,7 +12,7 @@ struct AddInventoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(BoatStore.self) private var boatStore
     
-    @State var item: InventoryItem = InventoryItem(name: "", type: InventoryType.misc, boat: nil)
+    @State var item: InventoryItem = InventoryItem(name: "", type: InventoryType(name: "None", boat: nil), boat: nil)
     
     var body: some View {
         

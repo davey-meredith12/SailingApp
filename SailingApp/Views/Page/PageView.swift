@@ -20,6 +20,7 @@ enum PageDestination{
     case settings
     case boatInfo
     case storageLocations
+    case inventoryType
 }
 
 struct PageView: View {
@@ -41,6 +42,10 @@ struct PageView: View {
         Page(name: "Storage Locations",
              imageName: "archivebox",
              destination: PageDestination.storageLocations),
+        
+        Page(name: "Inventory Types",
+             imageName: "folder",
+             destination: PageDestination.inventoryType),
         
         Page(name: "Settings",
              imageName: "gear",
@@ -82,6 +87,9 @@ struct PageView: View {
             if boatStore.currentBoat != nil {
                 BoatEditView(boat: boatStore.currentBoat!)
             }
+        
+        case .inventoryType:
+            InventoryTypeView()
         }
     }
 }

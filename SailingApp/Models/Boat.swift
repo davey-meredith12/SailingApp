@@ -28,6 +28,22 @@ final class Boat {
     @Relationship(deleteRule: .cascade, inverse: \StorageLocation.boat)
         var storageLocations: [StorageLocation] = []
     
+    @Relationship(deleteRule: .cascade, inverse: \InventoryType.boat)
+        var inventoryTypes: [InventoryType] = []
+    
+    static let defaultInventoryTypes = [
+            "Safety Equipment",
+            "Tools",
+            "Spare Parts",
+            "Engine Supplies",
+            "Cleaning Supplies",
+            "Galley",
+            "Food",
+            "Drinks",
+            "Medical Supplies",
+            "Misc"
+        ]
+    
     init(name: String = "",
          make: String = "",
          model: String = "",
@@ -45,6 +61,15 @@ final class Boat {
         self.fuelTankCapacity = fuelTankCapacity
         self.waterTankCapacity = waterTankCapacity
         self.holdingTankCapacity = holdingTankCapacity
+        
+        
+    }
+    
+    func addDefaultInventoryTypes(){
+        for name in Self.defaultInventoryTypes{
+            //creation adds the type to the boat
+            _ = InventoryType(name: name, boat: self)
+        }
     }
     
     

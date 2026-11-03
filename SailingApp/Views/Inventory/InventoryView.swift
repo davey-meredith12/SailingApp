@@ -30,18 +30,15 @@ struct InventoryView: View {
         return allItems.filter { item in
             item.name.localizedCaseInsensitiveContains(searchText) ||
             (item.location?.name ?? "").localizedCaseInsensitiveContains(searchText) ||
-            item.type.rawValue.localizedCaseInsensitiveContains(searchText)
+            (item.type?.name ?? "").localizedCaseInsensitiveContains(searchText)
         }
     }
     
-    private var groupedItems: [(type: InventoryType, items:[InventoryItem])] {
-        let grouped = Dictionary(grouping: items) {item in
-            item.type
-        }
-        return InventoryType.allCases.compactMap { type in
-            guard let itemsForType = grouped[type], !itemsForType.isEmpty else {return nil}
-            return (type: type, items: itemsForType)
-        }
+    private var groupedItems: [(title: String, items: [InventoryItem])] {
+        let grouped = Dictionary(grouping: items) { $0.type?.name ?? "Uncategorized" }
+        return grouped
+            .map { (title: $0.key, items: $0.value) }
+            .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
     }
 
     @State private var showingAddItem = false
@@ -61,8 +58,8 @@ struct InventoryView: View {
                     description: Text("No results match \"\(searchText)\"")
                 )
             } else {
-                ForEach(groupedItems, id: \.type) { group in
-                    Section(group.type.rawValue){
+                ForEach(groupedItems, id: \.title) { group in
+                    Section(group.title){
                         ForEach(group.items){ item in
                                 HStack{
                                     NavigationLink{
@@ -128,7 +125,7 @@ struct InventoryItemRowLabel: View{
             Text(item.name)
                 .font(.headline)
             
-            Text(item.type.rawValue)
+            Text(item.type?.name ?? "Uncategorized")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             

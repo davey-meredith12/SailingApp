@@ -8,23 +8,10 @@
 import Foundation
 import SwiftData
 
-enum InventoryType: String, Codable, CaseIterable {
-    case safetyEquipment = "Safety Equipment"
-    case tools = "Tools"
-    case spareParts = "Spare Parts"
-    case engineSupplies = "Engine Supplies"
-    case cleaningSupplies = "Cleaning Supplies"
-    case galley = "Galley"
-    case food = "Food"
-    case drinks = "Drinks"
-    case medicalSupplies = "Medical Supplies"
-    case misc = "Misc"
-}
-
 @Model
 final class InventoryItem {
     var name: String
-    var type: InventoryType
+    var type: InventoryType?
     var amount: Int
     var minimumAmount: Int
     var location: StorageLocation?
@@ -34,7 +21,7 @@ final class InventoryItem {
 
     init(
         name: String,
-        type: InventoryType,
+        type: InventoryType? = nil,
         amount: Int = 1,
         minimumAmount: Int = 0,
         location: StorageLocation? = nil,

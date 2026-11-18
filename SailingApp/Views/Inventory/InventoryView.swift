@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct InventoryView: View {
     @Environment(\.modelContext) private var modelContext
@@ -42,6 +43,7 @@ struct InventoryView: View {
     }
 
     @State private var showingAddItem = false
+    @State private var showingImporter = false
     
     var body: some View {
         List {
@@ -104,10 +106,30 @@ struct InventoryView: View {
                     Label("Add Item", systemImage: "plus")
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingImporter = true
+                } label: {
+                    Label("Import Items", systemImage: "square.and.arrow.down")
+                }
+            }
         }
         .sheet(isPresented: $showingAddItem) {
             NavigationStack {
                 AddInventoryView()
+            }
+        }
+        .fileImporter(
+            isPresented: $showingImporter,
+            allowedContentTypes: [.commaSeparatedText],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                importInventory(from: url, boat: boatStore.currentBoat!, context: modelContext)
+            case .failure(let error):
+                print("File picker error: \(error.localizedDescription)")
             }
         }
         

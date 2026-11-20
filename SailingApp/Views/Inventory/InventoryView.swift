@@ -9,34 +9,73 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
+enum GroupOption: String, CaseIterable, Identifiable {
+    case type = "Type", location = "Location"
+    var id: String { rawValue }
+}
+
+enum SortOption: String, CaseIterable, Identifiable {
+    case name = "Name", lowestStock = "Lowest stock", soonestExpiring = "Soonest expiring"
+    var id: String { rawValue }
+}
+
+enum FilterOption: String, CaseIterable, Identifiable {
+    case all = "All", low = "Low", expiring = "Expiring", expired = "Expired"
+    var id: String { rawValue }
+}
+
 struct InventoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(BoatStore.self) private var boatStore
     @AppStorage("expirationWarningDays") private var expirationWarningDays: Int = 7
+    
+    // Menu options grouping
+    @AppStorage("inventoryGroup") private var groupOption: GroupOption = .type
+    @AppStorage("inventorySort") private var sortOption: SortOption = .name
+    @State private var filterOption: FilterOption = .all
 
     
     @State private var searchText = ""
     
     private var items: [InventoryItem] {
-        guard let boat = boatStore.currentBoat else {return []}
-        
-        let allItems = boat.inventory.sorted {
-            $0.name < $1.name
+        guard let boat = boatStore.currentBoat else { return [] }
+
+        var result = boat.inventory
+
+        switch filterOption {
+        case .all: break
+        case .low: result = result.filter { $0.isLow }
+        case .expiring: result = result.filter { $0.isCloseToExpiring(numWarningDays: expirationWarningDays) }
+        case .expired: result = result.filter { $0.isExpired }
         }
-        
-        if searchText.isEmpty{
-            return allItems
+
+        if !searchText.isEmpty {
+            result = result.filter { item in
+                item.name.localizedCaseInsensitiveContains(searchText) ||
+                (item.location?.name ?? "").localizedCaseInsensitiveContains(searchText) ||
+                (item.type?.name ?? "").localizedCaseInsensitiveContains(searchText)
+            }
         }
-        
-        return allItems.filter { item in
-            item.name.localizedCaseInsensitiveContains(searchText) ||
-            (item.location?.name ?? "").localizedCaseInsensitiveContains(searchText) ||
-            (item.type?.name ?? "").localizedCaseInsensitiveContains(searchText)
+
+        switch sortOption {
+        case .name:
+            return result.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        case .lowestStock:
+            return result.sorted { ($0.amount - $0.minimumAmount) < ($1.amount - $1.minimumAmount) }
+        case .soonestExpiring:
+            return result.sorted {
+                ($0.daysUntilExpiration ?? .max) < ($1.daysUntilExpiration ?? .max)
+            }
         }
     }
-    
+
     private var groupedItems: [(title: String, items: [InventoryItem])] {
-        let grouped = Dictionary(grouping: items) { $0.type?.name ?? "Uncategorized" }
+        let grouped = Dictionary(grouping: items) { item -> String in
+            switch groupOption {
+            case .type: return item.type?.name ?? "Uncategorized"
+            case .location: return item.location?.name ?? "No Location"
+            }
+        }
         return grouped
             .map { (title: $0.key, items: $0.value) }
             .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
@@ -68,10 +107,12 @@ struct InventoryView: View {
                                         InventoryDetailView(item: item)
                                     } label:{
                                         HStack(alignment: .center){
+                                            //Label
                                             InventoryItemRowLabel(item: item)
                                             
                                             Spacer()
                                             
+                                            //Tags
                                             RowLabelExpirationTags(item: item, expirationWarningDays: expirationWarningDays)
                                         }
                                     }
@@ -99,6 +140,7 @@ struct InventoryView: View {
         .searchable(text: $searchText, prompt: "Search inventory")
         .navigationTitle("Inventory")
         .toolbar {
+            //Add item button
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingAddItem = true
@@ -106,11 +148,35 @@ struct InventoryView: View {
                     Label("Add Item", systemImage: "plus")
                 }
             }
+            //menu toolbar
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingImporter = true
+                Menu {
+                    //Grouping options
+                    Picker("Group by", selection: $groupOption) {
+                        ForEach(GroupOption.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.menu)
+
+                    Picker("Sort by", selection: $sortOption) {
+                        ForEach(SortOption.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.menu)
+
+                    Picker("Show", selection: $filterOption) {
+                        ForEach(FilterOption.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.menu)
+
+                    Divider()
+                    
+                    // Import
+                    Button {
+                        showingImporter = true
+                    } label: {
+                        Label("Import Items", systemImage: "square.and.arrow.down")
+                    }
                 } label: {
-                    Label("Import Items", systemImage: "square.and.arrow.down")
+                    Label("Options", systemImage: "ellipsis.circle")
                 }
             }
         }

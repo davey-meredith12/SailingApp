@@ -83,6 +83,7 @@ struct InventoryView: View {
 
     @State private var showingAddItem = false
     @State private var showingImporter = false
+    @State private var showingExporter = false
     
     var body: some View {
         List {
@@ -175,6 +176,14 @@ struct InventoryView: View {
                     } label: {
                         Label("Import Items", systemImage: "square.and.arrow.down")
                     }
+                    
+                    Button{
+                        showingExporter = true
+                    } label: {
+                        Label("Export Items",
+                            systemImage:
+                            "square.and.arrow.up")
+                    }
                 } label: {
                     Label("Options", systemImage: "ellipsis.circle")
                 }
@@ -198,7 +207,18 @@ struct InventoryView: View {
                 print("File picker error: \(error.localizedDescription)")
             }
         }
-        
+        .fileExporter(
+            isPresented: $showingExporter,
+            document: InventoryCSVDocument(
+                text: boatStore.currentBoat.map { inventoryCSV(for: $0) } ?? ""
+            ),
+            contentType: .commaSeparatedText,
+            defaultFilename: "Inventory"
+        ) { result in
+            if case .failure(let error) = result {
+                print("Export failed: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

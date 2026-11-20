@@ -13,6 +13,8 @@ import UniformTypeIdentifiers
 // and adds it to the given boat.
 // Expected header:
 // Name,Type,Amount,Low Stock Warning,Location,Has Expiration,Expiration Date,Notes
+// Fields may be wrapped in double quotes (with "" for a literal quote), so
+// commas and line breaks are allowed inside a field.
 func importInventory(from url: URL, boat: Boat, context: ModelContext) {
     // Needed for files the user picks (outside your app's sandbox)
     let didAccess = url.startAccessingSecurityScopedResource()
@@ -28,21 +30,14 @@ func importInventory(from url: URL, boat: Boat, context: ModelContext) {
     dateFormatter.dateFormat = "d-MMM-yy"
     dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
-    let lines = contents
-        .components(separatedBy: .newlines)
-        .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+    let rows = parseCSV(contents)
 
     var importedCount = 0
 
     // dropFirst() skips the header row
-    for line in lines.dropFirst() {
-        // omittingEmptySubsequences: false keeps blank fields (like empty Notes)
-        let columns = line
-            .split(separator: ",", omittingEmptySubsequences: false)
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-
+    for columns in rows.dropFirst() {
         guard columns.count >= 8 else {
-            print("Skipping malformed row: \(line)")
+            print("Skipping malformed row: \(columns.joined(separator: ","))")
             continue
         }
 
@@ -60,8 +55,7 @@ func importInventory(from url: URL, boat: Boat, context: ModelContext) {
         let type = findOrCreateType(named: typeName, boat: boat, context: context)
         let location = findOrCreateLocation(named: locationName, boat: boat, context: context)
 
-        // ASSUMPTION: InventoryItem has an init with these labels, in this
-        // order. Adjust to match your real initializer.
+        //Create item
         let item = InventoryItem(
             name: name,
             type: type,
@@ -73,14 +67,81 @@ func importInventory(from url: URL, boat: Boat, context: ModelContext) {
             boat: boat
         )
         context.insert(item)
+        importedCount += 1
     }
 
     do {
         try context.save()
-        print("Imported items")
+        print("Imported \(importedCount) items")
     } catch {
         print("Couldn't save imported items: \(error.localizedDescription)")
     }
+}
+
+// MARK: - CSV parsing
+
+// Parses CSV text into rows of fields. Handles:
+// - quoted fields containing commas, quotes ("") and line breaks
+// - \n, \r and \r\n line endings
+// - a leading byte-order mark
+// - blank lines (skipped)
+// Unquoted fields are trimmed of surrounding spaces; quoted fields are kept as-is.
+func parseCSV(_ text: String) -> [[String]] {
+    var rows: [[String]] = []
+    var row: [String] = []
+    var field = ""
+    var inQuotes = false
+    var fieldWasQuoted = false
+
+    func endField() {
+        row.append(fieldWasQuoted ? field : field.trimmingCharacters(in: .whitespaces))
+        field = ""
+        fieldWasQuoted = false
+    }
+
+    let chars = Array(text.hasPrefix("\u{FEFF}") ? String(text.dropFirst()) : text)
+    var i = 0
+    while i < chars.count {
+        let ch = chars[i]
+
+        if inQuotes {
+            if ch == "\"" {
+                if i + 1 < chars.count && chars[i + 1] == "\"" {
+                    field.append("\"")      // "" -> literal quote
+                    i += 1
+                } else {
+                    inQuotes = false        // closing quote
+                }
+            } else {
+                field.append(ch)            // commas and newlines are literal here
+            }
+        } else {
+            switch ch {
+            case "\"" where field.trimmingCharacters(in: .whitespaces).isEmpty && !fieldWasQuoted:
+                inQuotes = true             // opening quote at start of field
+                fieldWasQuoted = true
+                field = ""
+            case ",":
+                endField()
+            case "\n", "\r", "\r\n":        // Swift treats "\r\n" as one Character
+                endField()
+                rows.append(row)
+                row = []
+            default:
+                field.append(ch)
+            }
+        }
+        i += 1
+    }
+
+    // Last row if the file doesn't end with a newline
+    if !field.isEmpty || fieldWasQuoted || !row.isEmpty {
+        endField()
+        rows.append(row)
+    }
+
+    // Drop blank lines
+    return rows.filter { !($0.count == 1 && $0[0].isEmpty) }
 }
 
 // MARK: - Lookups

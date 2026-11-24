@@ -19,7 +19,24 @@ func inventoryCSV(for boat: Boat) -> String {
 
     var lines = ["Name,Type,Amount,Low Stock Warning,Location,Has Expiration,Expiration Date,Notes"]
 
-    for item in boat.inventory {
+    // Sort by type, then location, then name so the output order is
+    // deterministic
+    let sortedItems = boat.inventory.sorted { a, b in
+        let typeA = a.type?.name ?? "", typeB = b.type?.name ?? ""
+        if typeA != typeB {
+            return typeA.localizedCaseInsensitiveCompare(typeB) == .orderedAscending
+        }
+
+        let locA = a.location?.name ?? "", locB = b.location?.name ?? ""
+        if locA != locB {
+            return locA.localizedCaseInsensitiveCompare(locB) == .orderedAscending
+        }
+
+        return a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+    }
+
+    // Uses InventoryItem's properties (matching the init labels used by the importer).
+    for item in sortedItems {
         let hasExpiration = item.expiration != nil
         let expirationText = item.expiration.map { dateFormatter.string(from: $0) } ?? ""
 
